@@ -14,5 +14,13 @@ window.clubRoutes = [
         distance: "65 km",
         desc: "To Semlis",
         bgClass: "placeholder-bg-2"
+    },
+    {
+        title: "Ponts de Paris",
+        date: "2026-05-09",
+        time: "11:00",
+        distance: "35 km",
+        desc: "Along the ponts of Paris",
+        bgClass: "placeholder-bg-3"
     }
 ];

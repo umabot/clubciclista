@@ -1,7 +1,7 @@
 # ADR 001: Google Sheets as CMS for Route Updates
 
 ## Status
-Accepted
+Superseded by [ADR 002](ADR-002-client-side-csv.md)
 
 ## Context
 The project requires a simple, low-cost solution for a small business (specifically a biking club) to update their single-page landing page. The specific content that needs frequent updates includes:

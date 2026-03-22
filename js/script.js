@@ -1,52 +1,135 @@
 (function () {
     'use strict';
 
+    // ── DATA: Members ──
+    var members = [
+        { name: "Carlos Martínez", role: "Presidente", initials: "CM" },
+        { name: "Laura Rodríguez", role: "Vicepresidenta", initials: "LR" },
+        { name: "Pablo García", role: "Coordinador de Rutas", initials: "PG" },
+        { name: "Ana Fernández", role: "Tesorera", initials: "AF" },
+        { name: "Miguel Sánchez", role: "Comunicación", initials: "MS" },
+        { name: "Elena López", role: "Mecánica del Club", initials: "EL" }
+    ];
+
+    // ── DATA: Routes ──
+    var routes = [
+        {
+            title: "Sierra Norte Explorer",
+            date: "22 Mar 2026",
+            time: "08:00",
+            distance: "72 km",
+            desc: "Ascenso por Puerto de Canencia con vistas espectaculares. Dificultad media-alta.",
+            bgClass: "placeholder-bg-1"
+        },
+        {
+            title: "Vía Verde del Tajuña",
+            date: "29 Mar 2026",
+            time: "09:00",
+            distance: "45 km",
+            desc: "Ruta familiar y accesible por la antigua vía del tren. Ideal para principiantes.",
+            bgClass: "placeholder-bg-2"
+        },
+        {
+            title: "Navacerrada Challenge",
+            date: "05 Abr 2026",
+            time: "07:30",
+            distance: "95 km",
+            desc: "Reto de ascenso al Puerto de Navacerrada. Solo para ciclistas experimentados.",
+            bgClass: "placeholder-bg-3"
+        },
+        {
+            title: "Aranjuez Real",
+            date: "12 Abr 2026",
+            time: "08:30",
+            distance: "60 km",
+            desc: "Recorrido llano junto al Tajo, pasando por los Jardines del Príncipe.",
+            bgClass: "placeholder-bg-4"
+        }
+    ];
+
     // ── Utility: show toast message ──
     function showToast(message) {
         var toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(function () {
-            toast.classList.remove('show');
-        }, 3000);
+        if (toast) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(function () {
+                toast.classList.remove('show');
+            }, 3000);
+        }
     }
 
     // ── Utility: check Google Translate loaded ──
     function checkScriptLoad() {
         if (typeof google === 'undefined' || typeof google.translate === 'undefined') {
-            document.getElementById('error-banner').style.display = 'block';
+            var banner = document.getElementById('error-banner');
+            if (banner) banner.style.display = 'block';
         }
+    }
+
+    // ── RENDER: Members ──
+    function renderMembers() {
+        var grid = document.getElementById('members-grid');
+        if (!grid) return;
+        
+        grid.innerHTML = ''; // Clear existing
+        members.forEach(function(m) {
+            var card = document.createElement('div');
+            card.className = 'member-card';
+            card.innerHTML = 
+                '<div class="member-avatar">' + m.initials + '</div>' +
+                '<h3>' + m.name + '</h3>' +
+                '<p class="member-role">' + m.role + '</p>';
+            grid.appendChild(card);
+        });
+    }
+
+    // ── RENDER: Routes ──
+    function renderRoutes() {
+        var track = document.getElementById('routes-track');
+        if (!track) return;
+
+        track.innerHTML = ''; // Clear existing
+        routes.forEach(function(r) {
+            var card = document.createElement('div');
+            card.className = 'route-card';
+            card.innerHTML = 
+                '<div class="route-img ' + r.bgClass + '" role="img" aria-label="' + r.title + '"></div>' +
+                '<div class="route-info">' +
+                    '<h3>' + r.title + '</h3>' +
+                    '<div class="route-meta">' +
+                        '<span data-icon-small="calendar">' + r.date + '</span>' +
+                        '<span data-icon-small="clock">' + r.time + '</span>' +
+                        '<span data-icon-small="ruler">' + r.distance + '</span>' +
+                    '</div>' +
+                    '<p>' + r.desc + '</p>' +
+                '</div>';
+            track.appendChild(card);
+        });
     }
 
     // ── Lucide Icons Initialization ──
     function initIcons() {
         // Feature cards
-        var iconMap = {
-            'map-pin': 'map-pin',
-            'users': 'users',
-            'trophy': 'trophy',
-            'heart': 'heart'
-        };
         document.querySelectorAll('.feature-icon[data-icon]').forEach(function (el) {
             var iconName = el.getAttribute('data-icon');
-            var svg = document.createElement('i');
-            svg.setAttribute('data-lucide', iconName);
-            el.appendChild(svg);
+            if (iconName && !el.querySelector('svg')) {
+                 var svg = document.createElement('i');
+                 svg.setAttribute('data-lucide', iconName);
+                 el.appendChild(svg);
+            }
         });
 
-        // Route meta icons
-        var smallIconMap = {
-            'calendar': 'calendar',
-            'clock': 'clock',
-            'ruler': 'ruler'
-        };
+        // Route meta icons - need to run after renderRoutes
         document.querySelectorAll('[data-icon-small]').forEach(function (el) {
             var iconName = el.getAttribute('data-icon-small');
-            var svg = document.createElement('i');
-            svg.setAttribute('data-lucide', iconName);
-            svg.style.width = '14px';
-            svg.style.height = '14px';
-            el.prepend(svg);
+            if (iconName && !el.querySelector('svg')) {
+                var svg = document.createElement('i');
+                svg.setAttribute('data-lucide', iconName);
+                svg.style.width = '14px';
+                svg.style.height = '14px';
+                el.prepend(svg);
+            }
         });
 
         if (typeof lucide !== 'undefined') {
@@ -58,9 +141,15 @@
     function initHeroCarousel() {
         var slides = document.querySelectorAll('.hero-slide');
         var dotsContainer = document.getElementById('hero-dots');
+        
+        if (!slides.length || !dotsContainer) return;
+
         var currentIndex = 0;
         var totalSlides = slides.length;
         var autoplayTimer = null;
+
+        // Clear existing dots
+        dotsContainer.innerHTML = '';
 
         // Create dots
         for (var i = 0; i < totalSlides; i++) {
@@ -92,14 +181,22 @@
         }
 
         // Arrow buttons
-        document.getElementById('hero-prev').addEventListener('click', function () {
-            goToSlide(currentIndex - 1);
-            startAutoplay();
-        });
-        document.getElementById('hero-next').addEventListener('click', function () {
-            goToSlide(currentIndex + 1);
-            startAutoplay();
-        });
+        var prevBtn = document.getElementById('hero-prev');
+        var nextBtn = document.getElementById('hero-next');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function () {
+                goToSlide(currentIndex - 1);
+                startAutoplay();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function () {
+                goToSlide(currentIndex + 1);
+                startAutoplay();
+            });
+        }
 
         // Dot buttons
         dotsContainer.addEventListener('click', function (e) {
@@ -157,39 +254,76 @@
 
     // ── Mobile Navigation Toggle ──
     function initMobileNav() {
-        document.getElementById('hamburger-btn').addEventListener('click', function () {
-            document.getElementById('nav-links').classList.toggle('open');
+        var btn = document.getElementById('hamburger-btn');
+        var linksContainer = document.getElementById('nav-links');
+
+        if (!btn || !linksContainer) return;
+
+        btn.addEventListener('click', function () {
+            linksContainer.classList.toggle('open');
         });
 
         // Close menu when clicking a nav link
         document.querySelectorAll('.nav-links a').forEach(function (link) {
             link.addEventListener('click', function () {
-                document.getElementById('nav-links').classList.remove('open');
+                linksContainer.classList.remove('open');
             });
         });
     }
 
     // ── Contact Form Handler ──
     function initContactForm() {
-        document.getElementById('contact-form').addEventListener('submit', function (e) {
+        var form = document.getElementById('contact-form');
+        if (!form) return;
+
+        // Add clear button listener if it exists (optional enhancement for future)
+        // ...
+
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
-            // In a real app this would POST to a backend / Google Apps Script proxy
-            showToast('¡Mensaje enviado! Te responderemos pronto.');
-            e.target.reset();
+            
+            // Get form data
+            var formData = new FormData(form);
+            var data = {};
+            // Using Array.from for compatibility or simple iteration
+            // But formData.forEach is widely supported in modern browsers
+            data.name = formData.get('name');
+            data.email = formData.get('email');
+            data.message = formData.get('message');
+            data.timestamp = new Date().toISOString();
+
+            // Save to localStorage
+            try {
+                var messages = JSON.parse(localStorage.getItem('contact_messages') || '[]');
+                messages.push(data);
+                localStorage.setItem('contact_messages', JSON.stringify(messages));
+                console.log('Message saved to localStorage:', data);
+            } catch (err) {
+                console.error('Error saving to localStorage:', err);
+            }
+
+            // Show success feedback
+            showToast('¡Mensaje enviado! Gracias por contactarnos.');
+            form.reset();
         });
     }
 
     // ── Past Routes Link ──
     function initPastRoutes() {
-        document.getElementById('past-routes-link').addEventListener('click', function (e) {
-            e.preventDefault();
-            showToast('Sección de rutas anteriores — próximamente.');
-        });
+        var link = document.getElementById('past-routes-link');
+        if (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                showToast('Sección de rutas anteriores — próximamente.');
+            });
+        }
     }
 
     // ── Boot ──
     document.addEventListener('DOMContentLoaded', function () {
-        initIcons();
+        renderMembers();
+        renderRoutes();
+        initIcons(); // Must run AFTER render functions to catch new icons
         initHeroCarousel();
         initLanguageSwitcher();
         initMobileNav();

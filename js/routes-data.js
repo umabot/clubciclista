@@ -30,5 +30,13 @@ window.clubRoutes = [
         distance: "15 km",
         desc: "Ride to Paris downtown",
         bgClass: "placeholder-bg-4"
+    },
+    {
+        title: "2026-03-27",
+        date: "8:00",
+        time: "15",
+        distance: "placeholder-bg-1 km",
+        desc: "Ride to Paris downtown",
+        bgClass: "placeholder-bg-1"
     }
 ];

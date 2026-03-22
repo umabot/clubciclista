@@ -16,6 +16,12 @@ The new workflow:
 3.  **Consumption**: `js/script.js` fetches the CSV URL directly at runtime.
 4.  **Parsing**: A lightweight client-side CSV parser converts the data to JSON for rendering.
 
+### Impact on CI/CD (GitHub Actions)
+The `.github/workflows/deploy-pages.yml` workflow remains **required** for the project, but its role has shifted:
+- **It is still needed** to deploy changes to the application code (`index.html`, `css/*`, `js/*`) and documentation.
+- **It triggers** only on git pushes to the repository (e.g., code fixes, redesigns).
+- **It is NOT triggered** by data updates in the Google Sheet (data is now fetched at runtime).
+
 ## Consequences
 
 ### Positive

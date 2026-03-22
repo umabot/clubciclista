@@ -12,7 +12,7 @@
     ];
 
     // ── DATA: Routes ──
-    // Routes are now loaded from js/routes-data.js
+    // Routes are loaded from Google Sheets CSV (client-side fetch)
 
     // ── Utility: show toast message ──
     function showToast(message) {

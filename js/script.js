@@ -51,31 +51,109 @@
         });
     }
 
+    // ── DATA: Routes (Google Sheets CSV) ──
+    var ROUTES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBEEF3jrmrtbNwWBrkVedMy4DG4gT512gpEC8K3q7O97ZE9Mn9OfnDVE0F0yLh5C1lFB-cQ7owZcJR/pub?gid=0&single=true&output=csv';
+
+    // ── Utility: Parse CSV ──
+    function parseCSV(csvText) {
+        var lines = csvText.trim().split(/\r?\n/);
+        if (lines.length < 2) return []; // Header + at least one row
+
+        // Helper to split CSV line respecting quotes
+        function splitCSVLine(line) {
+            var result = [];
+            var current = '';
+            var inQuote = false;
+            for (var i = 0; i < line.length; i++) {
+                var char = line[i];
+                if (char === '"') { inQuote = !inQuote; }
+                else if (char === ',' && !inQuote) {
+                    result.push(current.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            return result;
+        }
+
+        var headers = splitCSVLine(lines[0]);
+        var routes = [];
+
+        for (var i = 1; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line.trim()) continue;
+            
+            var values = splitCSVLine(line);
+            
+            if (values.length > 0) {
+                var route = {};
+                // Map values to headers ensuring case-insensitivity
+                for (var j = 0; j < Math.min(headers.length, values.length); j++) {
+                    var header = headers[j].toLowerCase().replace(/[^a-z0-9]/g, '');
+                    var val = values[j];
+                    
+                    if (header.includes('title')) route.title = val;
+                    else if (header.includes('date')) route.date = val;
+                    else if (header.includes('time')) route.time = val;
+                    else if (header.includes('distance')) route.distance = val;
+                    else if (header.includes('desc')) route.desc = val;
+                    else if (header.includes('bgclass')) route.bgClass = val;
+                }
+                routes.push(route);
+            }
+        }
+        return routes;
+    }
+
     // ── RENDER: Routes ──
     function renderRoutes() {
         var track = document.getElementById('routes-track');
         if (!track) return;
 
-        // Use global variable from js/routes-data.js
-        var routes = window.clubRoutes || [];
+        // Show loading state
+        track.innerHTML = '<div style="text-align:center; padding: 2rem; color: #666;">Cargando rutas...</div>';
 
-        track.innerHTML = ''; // Clear existing
-        routes.forEach(function(r) {
-            var card = document.createElement('div');
-            card.className = 'route-card';
-            card.innerHTML = 
-                '<div class="route-img ' + r.bgClass + '" role="img" aria-label="' + r.title + '"></div>' +
-                '<div class="route-info">' +
-                    '<h3>' + r.title + '</h3>' +
-                    '<div class="route-meta">' +
-                        '<span data-icon-small="calendar">' + r.date + '</span>' +
-                        '<span data-icon-small="clock">' + r.time + '</span>' +
-                        '<span data-icon-small="ruler">' + r.distance + '</span>' +
-                    '</div>' +
-                    '<p>' + r.desc + '</p>' +
-                '</div>';
-            track.appendChild(card);
-        });
+        fetch(ROUTES_CSV_URL)
+            .then(function (response) {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(function (csvText) {
+                var routes = parseCSV(csvText);
+                
+                track.innerHTML = ''; // Clear loading
+
+                if (routes.length === 0) {
+                    track.innerHTML = '<div style="text-align:center; width:100%; padding:2rem;">No hay rutas programadas próximamente.</div>';
+                    return;
+                }
+
+                routes.forEach(function (r) {
+                    var card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.innerHTML =
+                        '<div class="route-img ' + (r.bgClass || 'placeholder-bg-1') + '" role="img" aria-label="' + (r.title || 'Ruta') + '"></div>' +
+                        '<div class="route-info">' +
+                            '<h3>' + (r.title || 'Sin título') + '</h3>' +
+                            '<div class="route-meta">' +
+                                '<span data-icon-small="calendar">' + (r.date || '-') + '</span>' +
+                                '<span data-icon-small="clock">' + (r.time || '-') + '</span>' +
+                                '<span data-icon-small="ruler">' + (r.distance || '-') + '</span>' +
+                            '</div>' +
+                            '<p>' + (r.desc || '') + '</p>' +
+                        '</div>';
+                    track.appendChild(card);
+                });
+
+                // Re-initialize icons for the new dynamic content
+                initIcons(); 
+            })
+            .catch(function (error) {
+                console.error('Error fetching routes:', error);
+                track.innerHTML = '<div style="text-align:center; width:100%; padding:2rem; color: #d32f2f;">Error cargando las rutas.</div>';
+            });
     }
 
     // ── Lucide Icons Initialization ──

@@ -32,11 +32,11 @@ window.clubRoutes = [
         bgClass: "placeholder-bg-4"
     },
     {
-        title: "2026-03-27",
-        date: "8:00",
-        time: "15",
+        title: "2026-05-09",
+        date: "11:00",
+        time: "35",
         distance: "placeholder-bg-1 km",
-        desc: "Ride to Paris downtown",
+        desc: "Along the ponts of Paris",
         bgClass: "placeholder-bg-1"
     }
 ];

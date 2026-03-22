@@ -1,6 +1,6 @@
 window.clubRoutes = [
     {
-        title: "Ascenso a Canencia",
+        title: "Madrid a Segovia via FuenteFria",
         date: "22 Mar 2026",
         time: "08:00",
         distance: "72 km",
